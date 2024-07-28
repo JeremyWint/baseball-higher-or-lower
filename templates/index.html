@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <!-- Character set for the webpage -->
+    <meta charset="UTF-8">
+
+    <!-- Viewport settings for responsive design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Title of the webpage -->
+    <title>Baseball Higher or Lower</title>
+
+    <!-- Link to Font Awesome for icon support -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Basic styling for the body element */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: url('/static/baseball_diamond.jpg');
+            background-position: center center;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+
+        /* Styling for the main title text */
+        .title-text{
+            font-family: 'Arial Black', Gadget, sans-serif;
+            font-size: 40px;
+            color: white;
+            text-shadow: 2px 2px 2px black;
+            margin-bottom: 200px;
+        }
+
+        /* Container for the buttons, centered horizontally */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Styling for the game launch buttons */
+        #batterButton, #pitcherButton{
+            font-size: 20px;
+            padding: 15px 30px;
+            cursor: pointer;
+            border-radius: 25px;
+            border: none;
+            background-color: navy;
+            color: white;
+            margin: 20px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* Hidden image elements that will be shown on hover */
+        .hover-image{
+            position: absolute;
+            display: none;
+            width: 400px;
+            height: auto;
+            opacity: 1;
+        }
+
+        /* Animation class for rolling up images */
+        .animate-rollup{
+            animation: rollup 0.5s forwards;
+        }
+
+        /* Keyframes for the rollup animation */
+        @keyframes rollup{
+            from{
+                transform: translateY(10px);
+                opacity: 0;
+            }
+            to{
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main title of the game launcher page -->
+    <h1 class="title-text">Welcome to Baseball Higher or Lower!</h1>
+    <div class="button-container">
+
+        <!-- Button to launch the batter game -->
+        <button id="batterButton" onclick="location.href='/batter'">Batting Average Higher or Lower</button>
+        
+        <!-- Button to launch the pitcher game -->
+        <button id="pitcherButton" onclick="location.href='/pitcher'">Earned Run Average Higher or Lower</button>
+    </div>
+
+    <!-- Images that will appear when hovering over the buttons -->
+    <img src="/static/batters.png" id="batterImage" class="hover-image">
+    <img src="/static/pitchers.png" id="pitcherImage" class="hover-image">
+    <script>
+
+        // Get references to the button and image elements
+        const batterButton = document.getElementById('batterButton');
+        const batterImage = document.getElementById('batterImage');
+        const pitcherButton = document.getElementById('pitcherButton');
+        const pitcherImage = document.getElementById('pitcherImage');
+
+        // Show batter image on mouse enter and position it near the button
+        batterButton.addEventListener('mouseenter', () => {
+            batterImage.style.display = 'block';
+            const rect = batterButton.getBoundingClientRect();
+            const imageWidth = batterImage.offsetWidth;
+            const offsetX = 15;
+            const offsetY = 7;
+        
+            batterImage.style.top = `${rect.top - batterImage.offsetHeight + offsetY}px`;
+            batterImage.style.left = `${rect.left + (rect.width/2) - (imageWidth/2) + offsetX}px`;
+            if (rect.top - batterImage.height < 0){
+                batterImage.style.top = `${rect.bottom}px`;
+            }
+
+            // Apply animation
+            batterImage.classList.add('animate-rollup');
+        });
+
+        // Hide batter image on mouse leave
+        batterButton.addEventListener('mouseleave', () => {
+            batterImage.style.display = 'none';
+
+            // Remove animation
+            batterImage.classList.remove('animate-rollup');
+        });
+
+        // Show pitcher image on mouse enter and position it near the button
+        pitcherButton.addEventListener('mouseenter', () => {
+            pitcherImage.style.display = 'block';
+            const rect = pitcherButton.getBoundingClientRect();
+            const imageWidth = pitcherImage.offsetWidth;
+            const offsetX = 15;
+            const offsetY = 7;
+        
+            pitcherImage.style.top = `${rect.top - pitcherImage.offsetHeight + offsetY}px`;
+            pitcherImage.style.left = `${rect.left + (rect.width/2) - (imageWidth/2) + offsetX}px`;
+            if (rect.top - pitcherImage.height < 0){
+                pitcherImage.style.top = `${rect.bottom}px`;
+            }
+
+            // Apply animation
+            pitcherImage.classList.add('animate-rollup');
+        });
+
+        // Hide pitcher image on mouse leave
+        pitcherButton.addEventListener('mouseleave', () => {
+            pitcherImage.style.display = 'none';
+
+            // Remove animation
+            pitcherImage.classList.remove('animate-rollup');
+        });
+    </script>
+</body>
+</html>

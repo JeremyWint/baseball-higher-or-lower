@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta tags for character set and viewport settings -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Title of the web page -->
+    <title>Batting Average Higher/Lower Game</title>
+
+    <!-- Link to Font Awesome for icon usage -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* General body styling */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: url('/static/baseball_diamond.jpg');
+            background-position: center center;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+
+        /* Styling for the game title */
+        .title-text{
+            font-family: 'Arial Black', Gadget, sans-serif;
+            font-size: 40px;
+            color:white;
+            text-shadow: 2px 2px 2px black;
+        }
+
+        /* Container styling for the game content */
+        #game {
+            background: transparent;
+            padding: 5px;
+            border-radius: 1px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Flex container for images and buttons */
+        .images-buttons-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Container styling for images */
+        .images-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 20px;
+        }
+
+        /* Styling for images inside the container */
+        .images-container img{
+            width: 175px;
+            height: auto;
+            border-radius: 8px;
+            margin: 10px 0 0 0;
+        }
+
+        /* Container styling for buttons */
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Styling for buttons */
+        .buttons-container button {
+            margin: 10px 0;
+            font-size: 20px;
+            padding: 15px 30px;
+            cursor: pointer;
+            border-radius: 25px;
+            border: none;
+            background-color: navy;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* Additional button styling for specific buttons */
+        #tryAgainButton, #nextQuestionButton, #endGameButton{
+            font-size: 20px;
+            padding: 15px 30px;
+            cursor: pointer;
+            border-radius: 25px;
+            border: none;
+            background-color: navy;
+            color: white;
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+        }
+        #nextQuestionButton{
+            order: 1;
+        }
+        #endGameButton{
+            order: 2;
+        }
+
+        /* Styling for player A's average text */
+        #playerA_avg{
+            font-family: 'Arial Black', Gadget, sans-serif;
+            font-size: 24px;
+            color: yellow;
+            margin-top: 5px;
+            text-shadow: 1px 1px 0 black, -1px -1px 0 black, -1px 1px 0 black, 1px -1px 0 black;
+        }
+
+        /* Styling for player B's average text */
+        #playerB_avg{
+            font-family: 'Arial Black', Gadget, sans-serif;
+            font-size: 24px;
+            color: lightgreen;
+            margin-top: 5px;
+            text-shadow: 1px 1px 0 black, -1px -1px 0 black, -1px 1px 0 black, 1px -1px 0 black;
+        }
+
+        /* Classes for hiding elements */
+        .hidden {
+            display: none;
+        }
+        .hidden-visibility{
+            visibility: hidden;
+        }
+
+        /* Styling for loader animation */
+        .loader{
+            display: none;
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+        .loader .home-plate{
+            width: 100px;
+            height: 100px;
+            filter: drop-shadow(4px 4px 8px black);
+        }
+        .loader .loader-path{
+            fill: none;
+            stroke-width: 5;
+            stroke-dasharray: 50, 225;
+            stroke-dashoffset: 250;
+            animation: move 1s linear infinite;
+        }
+        .loader-path-yellow{
+            stroke: yellow;
+        }
+        .loader-path-green{
+            stroke: lightgreen;
+        }
+
+        /* Keyframes for loader animation */
+        @keyframes move {
+            from{
+                stroke-dashoffset:250;
+            }
+            to{
+                stroke-dashoffset:-25;
+            }
+        }
+
+        /* Styling for loading text */
+        .loading-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            opacity: 1;
+            transition: opacity 0.3s ease-in-out;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 2px black;
+        }
+
+        /* Styling for question and result text */
+        .question-text{
+            font-family:'Roboto', sans-serif;
+            font-weight: bold;
+            font-size: 20px;
+            color:white;
+            text-shadow: 1px 1px 1px black;
+            margin-bottom: 2px;
+        }
+        .result-text{
+            font-family: 'Arial Black', Gadget, sans-serif;
+            font-size: 20px;
+            color:white;
+            text-shadow: 2px 2px 2px black;
+            margin-bottom: 2px;
+        }
+
+        /* Border and text color classes */
+        .yellow-border{
+            border: 5px solid yellow;
+        }
+        .green-border{
+            border: 5px solid lightgreen;
+        }
+        .yellow-text{
+            color: yellow;
+        }
+        .green-text{
+            color: lightgreen;
+        }
+        /* Styling for back to home button */
+        .back-to-home-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 16px;
+            padding: 10px 20px;
+            border: none;
+            background-color: navy;
+            color: white;
+            border-radius: 25px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Back to home button -->
+    <a href="/" class="back-to-home-button"><i class="fas fa-home"></i> Home</a>
+    <!-- Main game container -->
+    <div id="game" class="hidden">
+
+        <!-- Title of the game -->
+        <h1 class="title-text">Career Batting Average Higher/Lower Game</h1>
+        
+        <!-- Question text -->
+        <p id="question" class="question-text"></p>
+        
+        <!-- Container for images and buttons -->
+        <div class="images-buttons-container">
+            
+            <!-- Container for Player A's image and average -->
+            <div class="images-container">
+                <p class="loading-text hidden-visibility" id="loadingTextA">Stepping Up To The Plate...</p>
+                <div class="loader" id="loaderA">
+                    <svg class="home-plate" viewBox="0 -10 100 110">
+                        <polygon points="50,0 90,25 90,75 10,75 10,25" fill="white"/>
+                        <polygon points="50,0 90,25 90,75 10,75 10,25" class="loader-path loader-path-yellow"/>
+                    </svg>
+                </div>
+                <img id="playerAImage" src="" alt="Player A Image" class="hidden-visibility">
+                <p id="playerA_avg"></p>
+            </div>
+
+            <!-- Container for guess buttons -->
+            <div class="buttons-container">
+                <button id="higherButton" onclick="makeGuess('higher')"><i class="fas fa-arrow-up"></i> Higher</button>
+                <button id="lowerButton" onclick="makeGuess('lower')"><i class="fas fa-arrow-down"></i> Lower</button>
+            </div>
+
+            <!-- Container for Player B's image and average -->
+            <div class="images-container">
+                <p class="loading-text hidden-visibility" id="loadingTextB">Stepping Up To The Plate...</p>
+                <div class="loader" id="loaderB">
+                    <svg class="home-plate" viewBox="0 -10 100 110">
+                        <polygon points="50,0 90,25 90,75 10,75 10,25" fill="white"/>
+                        <polygon points="50,0 90,25 90,75 10,75 10,25" class="loader-path loader-path-green"/>
+                    </svg>
+                </div>
+                <img id="playerBImage" src="" alt="Player B Image" class="hidden-visibility">
+                <p id="playerB_avg"></p>
+            </div>
+        </div>
+
+        <!-- Result text -->
+        <p id="result" class="result-text"></p>
+
+        <!-- Action buttons for the game -->
+        <button id="tryAgainButton" onclick="startGame()" style="display: none;"><i class="fas fa-redo"></i> Try Again</button>
+        <button id="nextQuestionButton" onclick="nextQuestion()" style="display: none;"><i class="fas fa-arrow-right"></i> Next Question</button>
+        <button id="endGameButton" onclick="endGame()" style="display: none;"><i class="fas fa-stop"></i> End Game</button>
+    </div>
+
+    <script>
+        // Declare variables to store player data and images
+        let playerA, playerB;
+        let playerAImageURL, playerBImageURL, playerAAvg;
+        let firstQuestion = true;
+        
+        // Function to start a new game
+        async function startGame() {
+            // Hide and disable UI elements at the start of the game
+            document.getElementById('tryAgainButton').style.display = 'none';
+            document.getElementById('nextQuestionButton').style.display = 'none';
+            document.getElementById('endGameButton').style.display = 'none';
+            document.getElementById('higherButton').style.display = 'inline';
+            document.getElementById('lowerButton').style.display = 'inline';
+            document.getElementById('higherButton').disabled = true;
+            document.getElementById('lowerButton').disabled = true;
+            
+            // Reset content and visibility of UI elements
+            document.getElementById('playerA_avg').textContent = '';
+            document.getElementById('playerB_avg').textContent = '';
+            document.getElementById('result').textContent = '';
+            document.getElementById('question').textContent = '';
+
+            // Declare constant variables
+            const playerAImage = document.getElementById('playerAImage');
+            const playerBImage = document.getElementById('playerBImage');
+            const loaderA = document.getElementById('loaderA');
+            const loaderB = document.getElementById('loaderB');
+            const loadingTextA = document.getElementById('loadingTextA');
+            const loadingTextB = document.getElementById('loadingTextB');
+            
+            // Reset content and visibility of UI elements
+            playerAImage.src = '';
+            playerBImage.src = '';
+            playerAImage.classList.add('hidden-visibility');
+            playerBImage.classList.add('hidden-visibility');
+            loaderA.style.display = 'block';
+            loaderB.style.display = 'block';
+            loadingTextA.classList.remove('hidden-visibility');
+            loadingTextB.classList.remove('hidden-visibility');
+        
+
+            // Fetch data for the initial question
+            const questionPromise = fetch('start_game')
+                .then(response => response.json());
+        
+
+            // Fetch player images based on the initial question data    
+            const imagesPromise = questionPromise.then(data => {
+                playerA = data.playerA;
+                playerB = data.playerB;
+                return fetch('player_images', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        playerA: data.playerA,
+                        playerB: data.playerB
+                    })
+                }).then(response => response.json());
+            });
+            
+            // Handle the responses and update UI
+            Promise.all([questionPromise, imagesPromise]).then(([questionData, imagesData]) => {
+                playerA = questionData.playerA;
+                playerB = questionData.playerB;
+                playerAImageURL = imagesData.playerA_img;
+                playerBImageURL = imagesData.playerB_img;
+                playerAAvg = questionData.baA;
+                document.getElementById('question').innerHTML = `Does <span class="yellow-text">${playerA}</span> have a HIGHER or LOWER career batting average than <span class="green-text">${playerB}</span>?`;
+                playerAImage.src = playerAImageURL;
+                playerBImage.src = playerBImageURL;
+                playerAImage.onload = () => {
+                    loaderA.style.display = 'none';
+                    loadingTextA.classList.add('hidden-visibility');
+                    playerAImage.classList.remove('hidden-visibility');
+                    playerAImage.classList.add('yellow-border');
+                };
+                playerBImage.onload = () => {
+                    loaderB.style.display = 'none';
+                    loadingTextB.classList.add('hidden-visibility');
+                    playerBImage.classList.remove('hidden-visibility');
+                    playerBImage.classList.add('green-border');
+                };
+                document.getElementById('higherButton').disabled = false;
+                document.getElementById('lowerButton').disabled = false;
+
+                // Show the game after data is loaded
+                document.getElementById('game').classList.remove('hidden');  
+            });
+            
+            //Indicate that it's the first question of the game
+            firstQuestion = true;
+        }
+        
+         // Function to load the next question
+        async function nextQuestion() {
+            // Hide and disable UI elements before loading the next question
+            document.getElementById('nextQuestionButton').style.display = 'none';
+            document.getElementById('endGameButton').style.display = 'none';
+            document.getElementById('higherButton').disabled = true;
+            document.getElementById('lowerButton').disabled = true;
+            document.getElementById('higherButton').style.display = 'inline';
+            document.getElementById('lowerButton').style.display = 'inline';
+            const previousPlayerA = document.getElementById('nextQuestionButton').getAttribute('data-previous-playerA');
+        
+            // Show playerB's image from the previous question immediately
+            const playerAImage = document.getElementById('playerAImage');
+            const playerBImage = document.getElementById('playerBImage');
+            const loaderA = document.getElementById('loaderA');
+            const loadingTextA = document.getElementById('loadingTextA');
+
+            // Show previous playerA's image as new playerB
+            playerBImage.src = playerAImageURL;  
+            playerBImage.classList.remove('hidden-visibility');
+            document.getElementById('playerB_avg').textContent = playerAAvg;
+            
+            // Clear other elements
+            document.getElementById('question').textContent = '';
+            playerAImage.src = '';
+            playerAImage.classList.add('hidden-visibility');
+            loaderA.style.display = 'block';
+            loadingTextA.classList.remove('hidden-visibility');
+            document.getElementById('playerA_avg').textContent = '';
+        
+            // Fetch data for the next question
+            const questionPromise = fetch('next_question', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    previous_playerA: previousPlayerA
+                })
+            }).then(response => response.json());
+        
+            // Fetch player images for the new question
+            const imagesPromise = questionPromise.then(data => {
+                playerA = data.newPlayerA;
+                playerB = data.newPlayerB;
+
+                // Reset playerAImageURL to fetch the new one
+                playerAImageURL = '';  
+                return fetch('player_images', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        playerA: data.newPlayerA,
+                        playerB: data.newPlayerB
+                    })
+                }).then(response => response.json());
+            });
+        
+            // Handle the responses and update UI
+            Promise.all([questionPromise, imagesPromise]).then(([questionData, imagesData]) => {
+                playerA = questionData.newPlayerA;
+                playerB = questionData.newPlayerB;
+                playerAImageURL = imagesData.playerA_img;
+                playerAAvg = questionData.new_baA;
+                document.getElementById('question').innerHTML = `Does <span class="yellow-text">${playerA}</span> have a HIGHER or LOWER career batting average than <span class="green-text">${playerB}</span>?`;
+                playerAImage.src = playerAImageURL;
+                playerAImage.onload = () => {
+                    loaderA.style.display = 'none';
+                    loadingTextA.classList.add('hidden-visibility');
+                    playerAImage.classList.remove('hidden-visibility');
+                };
+                document.getElementById('higherButton').disabled = false;
+                document.getElementById('lowerButton').disabled = false;
+                document.getElementById('playerB_avg').textContent = playerBAvg;
+                document.getElementById('result').textContent = `Current streak: ${questionData.streak}`;
+                document.getElementById('nextQuestionButton').style.display = 'none';
+                document.getElementById('endGameButton').style.display = 'none';
+
+            });
+            
+            // Indicate that this is not the first question
+            firstQuestion = false;
+        }
+        
+        // Function to handle user's guess
+        async function makeGuess(guess) {
+            const higherButton = document.getElementById('higherButton');
+            const lowerButton = document.getElementById('lowerButton');
+        
+            // Disable buttons while processing the guess
+            higherButton.disabled = true;
+            lowerButton.disabled = true;
+        
+            // Hide the button that was not clicked
+            if (guess == 'higher') {
+                lowerButton.style.display = 'none';
+            } else {
+                higherButton.style.display = 'none';
+            }
+        
+            // Check the user's guess
+            const response = await fetch('check_answer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    playerA: playerA,
+                    playerB: playerB,
+                    user_input: guess
+                })
+            });
+            const data = await response.json();
+
+            // Function to display the result of the user's guess
+            const displayResult = async () => {
+
+                // If the guess was correct, show the current streak and enable the next question and end game buttons
+                if (data.correct) {
+                    document.getElementById('result').textContent = `Correct! Current streak: ${data.streak}`;
+                    document.getElementById('nextQuestionButton').style.display = 'block';
+                    document.getElementById('endGameButton').style.display = 'block';
+                    document.getElementById('nextQuestionButton').setAttribute('data-previous-playerA', playerA);
+                } 
+                
+                // If the guess was incorrect, show the final streak and display the try again button after a short delay
+                else {
+                    document.getElementById('result').textContent = `Incorrect. Final streak: ${data.final_streak}`;
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    document.getElementById('higherButton').style.display = 'none';
+                    document.getElementById('lowerButton').style.display = 'none';
+                    document.getElementById('tryAgainButton').style.display = 'block';
+                }
+            };
+        
+            // Animate the display of batting averages
+            if (firstQuestion) {
+
+                // For the first question, animate both player averages
+                await Promise.all([
+                    animateDisplay('playerA_avg', data.baA),
+                    animateDisplay('playerB_avg', data.baB)
+                ]);
+            } else {
+
+                // For subsequent questions, only animate playerA's average
+                await animateDisplay('playerA_avg', data.baA);
+            }
+        
+            displayResult();
+        }
+        
+        // Function to animate the display of batting average values
+        function animateDisplay(elementId, targetAvg) {
+            return new Promise((resolve) => {
+
+                // Initialize the current average
+                let currentAvg = 0.000;
+
+                // Precision for displaying averages
+                const precision = 3;
+                const interval = setInterval(() => {
+
+                    // Increment the average value
+                    currentAvg += 0.001;
+
+                    // Format to specified precision
+                    currentAvg = parseFloat(currentAvg.toFixed(precision));
+                    if (currentAvg > targetAvg) {
+                        
+                        // Cap the average at the target value
+                        currentAvg = targetAvg;
+
+                        // Stop the animation
+                        clearInterval(interval);
+
+                        //Resolve the promise
+                        resolve();
+                    }
+
+                    // Update the displayed average
+                    document.getElementById(elementId).innerText = currentAvg.toFixed(3);
+                
+                    // Update every 20 milliseconds
+                }, 20);
+            });
+        }
+        
+        // Function to handle the end of the game
+        async function endGame() {
+            const response = await fetch('end_game', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+
+            // Hide all game-related buttons and display the try again button
+            document.getElementById('higherButton').style.display = 'none';
+            document.getElementById('lowerButton').style.display = 'none';
+            document.getElementById('nextQuestionButton').style.display = 'none';
+            document.getElementById('endGameButton').style.display = 'none';
+            document.getElementById('tryAgainButton').style.display = 'block';
+
+            // Display the final streak
+            document.getElementById('result').textContent = `Game Ended. Final streak: ${data.final_streak}`;
+        }
+        
+        // Initialize the game when the window loads
+        window.onload = startGame;
+        </script>
+</body>
+</html>
