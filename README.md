@@ -14,13 +14,16 @@
 
 ## Overview
 
-The Baseball Higher or Lower Game is an engaging and interactive web-based game where users test their knowledge of baseball players' statistics. The game presents players with two baseball players and a specific statistic, career batting average or career earned run average. The objective is to guess which player has the higher or lower value for the given statistic.
+The Baseball Higher or Lower Game is an engaging and interactive web-based game where users test their knowledge of baseball players' statistics. The game presents players with two baseball players and a specific career statistic, batting average, hits, home runs, earned run average, strikeouts, or wins. The objective is to guess which player has the higher or lower value for the given statistic.
+
+You can check out the live website here: [Baseball Higher or Lower](https://www.baseballhigherorlower.com/)
 
 ## Features
 
 - **Intuitive Gameplay**: Simple and easy-to-understand mechanics, suitable for all ages.
 - **Real-time Player Data**: Up-to-date statistics of all active baseball players through the MLB-StatsAPI.
 - **Player Images**: Enhanced visual appeal of the game with images of almost every single player, sourced via web-scraping from BaseballReference.com.
+- **Wide Array of Statistics**: Includes major batting and pitching statistics like batting average, hits, home runs, earned run average, strikeouts, and wins.
 - **Color-coded Player Identification**: Easily distinguish between players with color-coded names and borders around player images, ensuring clear association between statistics and players.
 - **Real-time Feedback**: Immediate feedback on whether your guess was correct, enhancing the learning experience. 
 
@@ -73,15 +76,16 @@ The project uses the MLB-StatsAPI to fetch real-time player-data. No additonal c
 
 1. Screenshot of Home Page
 ![Screenshot](static/homepage.png)
+*Note: Hover-images for the buttons are not pictured in this screenshot.*
 
-2. Screenshot of Batting Average Higher or Lower Game
-![Screenshot](static/batter1.png)
+2. Screenshot of Hits Higher or Lower Game
+![Screenshot](static/hitter1.png)
 
 3. Screenshot of Correct Answer
-![Screenshot](static/batter2.png)
+![Screenshot](static/hitter2.png)
 
 4. Screenshot of Incorrect Answer
-![Screenshot](static/batter3.png)
+![Screenshot](static/hitter3.png)
 
 ## Contributing
 

@@ -7,7 +7,7 @@ import statsapi
 import asyncio
 import unicodedata
 
-from . import batter_bp
+from . import strikeout_bp
 streak = 0
 
 # Get path for CSV file that contains player names, teams, and images
@@ -27,30 +27,35 @@ for team_id in teams:
     name = team_info[0]['name']
     team_names[team_id] = name
 
-# Generates and returns a random position player from any of the 30 mlb teams
+# Generates and returns a random pitcher from any of the 30 mlb teams
 def get_rand_player():
     teams = [108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 158]
     randTeam = random.choice(teams)
     roster = statsapi.roster(randTeam)
     lines = roster.split('\n')
-    
-    # Filter out pitchers ('P' is the position code for pitchers)
-    filtered_lines = [line for line in lines if len(line.split()) > 1 and line.split()[1] != 'P']
+
+    # Filter out position players ('P' is the position code for pitchers)
+    filtered_lines = [line for line in lines if len(line.split()) > 1 and line.split()[1] == 'P']
     names = [' '.join(line.split()[2:]) for line in filtered_lines]
     filtered_names = '\n'.join(names)
 
-    # Randomly select a player from the filtered list
+     # Randomly select a pitcher from the filtered list
     index = random.randrange(len(names))
     player = statsapi.lookup_player(names[index])
 
     # Return the first (and only) element of the player list
     return player[0]
 
-# Returns the batting average of a player given the player id
+# Returns the strikeouts of a player given the player id
 def get_player_stats(player_id):
-    player_stats = statsapi.player_stat_data(player_id, group="[hitting]", type="career")
-    player_avg = player_stats['stats'][0]['stats']['avg']
-    return float(player_avg)
+    player_stats = statsapi.player_stat_data(player_id, group="[pitching]", type="career")
+    try:
+        player_Ks = player_stats['stats'][0]['stats']['strikeOuts']
+        return player_Ks
+    
+    # Get a new player if they do not have a career strikeouts value
+    except IndexError:
+        return "Get New Player"
 
 # Returns the image url of a player given the player name and player team
 def get_player_image(player_name, player_team):
@@ -63,20 +68,21 @@ def get_player_image(player_name, player_team):
         player_img = '/static/silhouette.jpg'
     return player_img
 
-# Compares the batting average of two players and returns the name of the player with the higher batting average
-def compare_ba(playerA, playerB):
-    playerA_avg = get_player_stats(playerA[0]['id'])
-    playerB_avg = get_player_stats(playerB[0]['id'])
 
-    if playerA_avg > playerB_avg:
+# Compares the strikeouts of two players and returns the name of the player with more strikeouts
+def compare_Ks(playerA, playerB):
+    playerA_Ks = get_player_stats(playerA[0]['id'])
+    playerB_Ks = get_player_stats(playerB[0]['id'])
+
+    if playerA_Ks > playerB_Ks:
         return playerA[0]['fullName']
-    elif playerB_avg > playerA_avg:
+    elif playerB_Ks > playerA_Ks:
         return playerB[0]['fullName']
     else:
         return "Equal"
 
 
-@batter_bp.route('/')
+@strikeout_bp.route('/')
 def index():
     """
     Renders the main game page and resets the streak variable.
@@ -84,30 +90,41 @@ def index():
     # Set the streak variable to 0 for every new session
     global streak
     streak = 0
-    return render_template('batter.html')
+    return render_template('strikeout.html')
 
-@batter_bp.route('/start_game', methods=['GET'])
+@strikeout_bp.route('/start_game', methods=['GET'])
 def start_game():
     """
     Starts a new game by selecting two random players, ensuring they are different.
-    Returns the names and batting averages of both players.
+    Returns the names and strikeouts of both players.
     """
+
+    # Initially generate a random playerA and playerB
     playerA = get_rand_player()
     playerB = get_rand_player()
 
-    # Ensure playerA and playerB are not the same
-    while playerA == playerB:
+    playerA_Ks = get_player_stats(playerA['id'])
+
+    # Generate a new random playerA with valid strikeouts
+    while playerA_Ks == "Get New Player":
+        playerA = get_rand_player()
+        playerA_Ks = get_player_stats(playerA['id'])
+
+    playerB_Ks = get_player_stats(playerB['id'])
+
+    # Generate a new random player with valid strikeouts that is NOT the same player as playerA
+    while playerB_Ks == "Get New Player" or playerB == playerA:
         playerB = get_rand_player()
-    playerA_avg = get_player_stats(playerA['id'])
-    playerB_avg = get_player_stats(playerB['id'])
+        playerB_Ks = get_player_stats(playerB['id'])
+
     return jsonify({
         'playerA': playerA['fullName'],
         'playerB': playerB['fullName'],
-        'baA': f"{playerA_avg:.3f}",
-        'baB': f"{playerB_avg:.3f}",
+        'ksA': playerA_Ks,
+        'ksB': playerB_Ks
     })
 
-@batter_bp.route('/player_images', methods=['POST'])
+@strikeout_bp.route('/player_images', methods=['POST'])
 def player_images():
     """
     Retrieves image URLs for two players based on their names and current teams.
@@ -134,11 +151,11 @@ def player_images():
         "playerB_img": playerB_img
     })
 
-@batter_bp.route('/check_answer', methods=['POST'])
+@strikeout_bp.route('/check_answer', methods=['POST'])
 def check_answer():
     """
-    Checks the user's answer for which player has a higher batting average.
-    Updates and returns the streak, whether the answer was correct, and the batting averages.
+    Checks the user's answer for which player has more strikeouts.
+    Updates and returns the streak, whether the answer was correct, and the strikeouts.
     """
     global streak
     data = request.json
@@ -149,23 +166,23 @@ def check_answer():
     playerA_data = statsapi.lookup_player(playerA)
     playerB_data = statsapi.lookup_player(playerB)
 
-    # Determine the player with the better batting average
-    better_player = compare_ba(playerA_data, playerB_data)
+    # Determine the player with more strikeouts
+    higher_player = compare_Ks(playerA_data, playerB_data)
     correct = False
 
     # Check if the user's input is correct
-    if (better_player == playerA or better_player == "Equal") and user_input == "higher":
+    if (higher_player == playerA or higher_player == "Equal") and user_input == "higher":
         correct = True
         streak += 1
-    elif (better_player == playerB or better_player == "Equal") and user_input == "lower":
+    elif (higher_player == playerB or higher_player == "Equal") and user_input == "lower":
         correct = True
         streak += 1
 
     result = {
         'correct': correct,
         'streak': streak,
-        'baA': f"{get_player_stats(playerA_data[0]['id']):.3f}",
-        'baB': f"{get_player_stats(playerB_data[0]['id']):.3f}"
+        'ksA': get_player_stats(playerA_data[0]['id']),
+        'ksB': get_player_stats(playerB_data[0]['id'])
     }
     if not correct:
         result['final_streak'] = streak
@@ -173,41 +190,45 @@ def check_answer():
 
     return jsonify(result)
 
-@batter_bp.route('/next_question', methods=['POST'])
+@strikeout_bp.route('/next_question', methods=['POST'])
 def next_question():
     """
     Provides a new random player different from the previous one, for the next question.
-    Returns the new player and the previous playerA, along with their batting averages and the current streak.
+    Returns the new player and the previous playerA, along with their strikeouts and the current streak.
     """
     data = request.json
     global streak
     previous_playerA = data['previous_playerA']
     previous_playerA_data = statsapi.lookup_player(previous_playerA)[0]
 
-    # Get a new random player different from previous_playerA
+    # Get a new random player for playerA
     new_playerA = get_rand_player()
+    new_KsA = get_player_stats(new_playerA['id'])
 
-    # Ensure we get a different player
-    while new_playerA['fullName'] == previous_playerA:  
+    # Ensure the new random player has valid strikeouts and is NOT the same as the previous playerA
+    while new_playerA['fullName'] == previous_playerA or new_KsA == "Get New Player":
         new_playerA = get_rand_player()
+        new_KsA = get_player_stats(new_playerA['id'])
     
-    new_baA = get_player_stats(new_playerA['id'])
-    new_baB = get_player_stats(previous_playerA_data['id'])
+    new_KsB = get_player_stats(previous_playerA_data['id'])
+
     return jsonify({
         'newPlayerA': new_playerA['fullName'],
         'newPlayerB': previous_playerA,
-        'new_baA': f"{new_baA:.3f}",
-        'new_baB': f"{new_baB:.3f}",
+        'new_KsA': new_KsA,
+        'new_KsB': new_KsB,
         'streak': streak
     })
 
-@batter_bp.route('/end_game', methods=['POST'])
+@strikeout_bp.route('/end_game', methods=['POST'])
 def end_game():
     """
     Ends the game, returns the final streak, and resets the streak.
     """
     global streak
     final_streak = streak
+
+    # Reset the streak to 0
     streak = 0
     return jsonify({
         'final_streak': final_streak

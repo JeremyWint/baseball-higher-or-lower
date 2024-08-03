@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 from flask import Flask, jsonify
-from batter.routes import batter_bp, get_rand_player, get_player_image, get_player_stats, compare_ba
+from batter.batter_routes import batter_bp, get_rand_player, get_player_image, get_player_stats, compare_ba
 import pandas as pd
 
 class TestBatterRoutes(unittest.TestCase):
@@ -15,22 +15,22 @@ class TestBatterRoutes(unittest.TestCase):
     def tearDown(self):
         self.app_context.pop()
 
-    @patch('batter.routes.statsapi.lookup_team')
-    @patch('batter.routes.team_names', new_callable=dict)
+    @patch('batter.batter_routes.statsapi.lookup_team')
+    @patch('batter.batter_routes.team_names', new_callable=dict)
     def test_team_names_loading(self, mock_team_names, mock_lookup_team):
         mock_lookup_team.return_value = [{'name': 'Team A'}]
         mock_team_names.update({108: 'Team A'})
         self.assertEqual(mock_team_names, {108: 'Team A'})
 
     def test_index(self):
-        with patch('batter.routes.render_template') as mock_render_template:
+        with patch('batter.batter_routes.render_template') as mock_render_template:
             mock_render_template.return_value = 'Render Content'
             response = self.client.get('/')
             self.assertEqual(response.status_code, 200)
             self.assertIn(b'Render Content', response.data)
 
-    @patch('batter.routes.get_rand_player')
-    @patch('batter.routes.get_player_stats')
+    @patch('batter.batter_routes.get_rand_player')
+    @patch('batter.batter_routes.get_player_stats')
     def test_start_game(self, mock_get_player_stats, mock_get_rand_player):
         mock_get_player_stats.side_effect = [0.250, 0.250]
         mock_get_rand_player.side_effect = [{'fullName': 'Player A', 'id': 1}, {'fullName': 'Player B', 'id': 2}]
@@ -44,8 +44,8 @@ class TestBatterRoutes(unittest.TestCase):
         self.assertEqual(data['baA'], '0.250')
         self.assertEqual(data['baB'], '0.250')
 
-    @patch('batter.routes.statsapi.lookup_player')
-    @patch('batter.routes.get_player_image')
+    @patch('batter.batter_routes.statsapi.lookup_player')
+    @patch('batter.batter_routes.get_player_image')
     def test_player_images(self, mock_get_player_image, mock_lookup_player):
         mock_lookup_player.side_effect = [
             [{'fullName': 'Player A', 'currentTeam': {'id': 108}}],
@@ -63,9 +63,9 @@ class TestBatterRoutes(unittest.TestCase):
         self.assertEqual(data['playerA_img'], '/images/playerA.jpg')
         self.assertEqual(data['playerB_img'], '/images/playerB.jpg')
 
-    @patch('batter.routes.get_player_stats')
-    @patch('batter.routes.compare_ba')
-    @patch('batter.routes.statsapi.lookup_player')
+    @patch('batter.batter_routes.get_player_stats')
+    @patch('batter.batter_routes.compare_ba')
+    @patch('batter.batter_routes.statsapi.lookup_player')
     def test_check_answer(self, mock_lookup_player, mock_compare_ba, mock_get_player_stats):
         mock_lookup_player.side_effect = [
             [{'id': 1, 'fullName': 'Player A'}],
@@ -87,9 +87,9 @@ class TestBatterRoutes(unittest.TestCase):
         self.assertEqual(data['baA'], '0.300')
         self.assertEqual(data['baB'], '0.250')
 
-    @patch('batter.routes.statsapi.lookup_player')
-    @patch('batter.routes.get_player_stats')
-    @patch('batter.routes.get_rand_player')
+    @patch('batter.batter_routes.statsapi.lookup_player')
+    @patch('batter.batter_routes.get_player_stats')
+    @patch('batter.batter_routes.get_rand_player')
     def test_next_question(self, mock_get_rand_player, mock_get_player_stats, mock_lookup_player):
         # Mock setup
         mock_get_player_stats.side_effect = [0.300, 0.250]
@@ -114,7 +114,7 @@ class TestBatterRoutes(unittest.TestCase):
         self.assertEqual(data['new_baA'], '0.300')
         self.assertEqual(data['new_baB'], '0.250')
 
-    @patch('batter.routes.streak', new=5)
+    @patch('batter.batter_routes.streak', new=5)
     def test_end_game(self):
         response = self.client.post('/end_game')
         data = response.get_json()

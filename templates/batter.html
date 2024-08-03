@@ -401,7 +401,7 @@
             // Show previous playerA's image as new playerB
             playerBImage.src = playerAImageURL;  
             playerBImage.classList.remove('hidden-visibility');
-            document.getElementById('playerB_avg').textContent = playerAAvg;
+            document.getElementById('playerB_avg').textContent = 'BA: ' + playerAAvg;
             
             // Clear other elements
             document.getElementById('question').textContent = '';
@@ -456,7 +456,7 @@
                 };
                 document.getElementById('higherButton').disabled = false;
                 document.getElementById('lowerButton').disabled = false;
-                document.getElementById('playerB_avg').textContent = playerBAvg;
+                document.getElementById('playerB_avg').textContent = 'BA: ' + playerBAvg;
                 document.getElementById('result').textContent = `Current streak: ${questionData.streak}`;
                 document.getElementById('nextQuestionButton').style.display = 'none';
                 document.getElementById('endGameButton').style.display = 'none';
@@ -564,7 +564,7 @@
                     }
 
                     // Update the displayed average
-                    document.getElementById(elementId).innerText = currentAvg.toFixed(3);
+                    document.getElementById(elementId).innerText = 'BA: ' + currentAvg.toFixed(3);
                 
                     // Update every 20 milliseconds
                 }, 20);

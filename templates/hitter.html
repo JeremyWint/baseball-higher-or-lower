@@ -4,9 +4,9 @@
     <!-- Meta tags for character set and viewport settings -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    
     <!-- Title of the web page -->
-    <title>ERA Higher/Lower Game</title>
+    <title>Hits Higher/Lower Game</title>
 
     <!-- Link to Font Awesome for icon usage -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -107,8 +107,8 @@
             order: 2;
         }
 
-        /* Styling for player A's era text */
-        #playerA_era{
+        /* Styling for player A's hits text */
+        #playerA_hits{
             font-family: 'Arial Black', Gadget, sans-serif;
             font-size: 24px;
             color: yellow;
@@ -116,8 +116,8 @@
             text-shadow: 1px 1px 0 black, -1px -1px 0 black, -1px 1px 0 black, 1px -1px 0 black;
         }
 
-        /* Styling for player B's era text */
-        #playerB_era{
+        /* Styling for player B's hits text */
+        #playerB_hits{
             font-family: 'Arial Black', Gadget, sans-serif;
             font-size: 24px;
             color: lightgreen;
@@ -140,9 +140,10 @@
             width: 100px;
             height: 100px;
         }
-        .loader .pitchers-mound{
+        .loader .home-plate{
             width: 100px;
             height: 100px;
+            filter: drop-shadow(4px 4px 8px black);
         }
         .loader .loader-path{
             fill: none;
@@ -182,7 +183,7 @@
 
         /* Styling for question and result text */
         .question-text{
-            font-family: 'Roboto', sans-serif;
+            font-family:'Roboto', sans-serif;
             font-weight: bold;
             font-size: 20px;
             color:white;
@@ -234,25 +235,25 @@
     <div id="game" class="hidden">
 
         <!-- Title of the game -->
-        <h1 class="title-text">Career Earned Run Average (ERA) Higher/Lower Game</h1>
+        <h1 class="title-text">Career Hits Higher/Lower Game</h1>
         
         <!-- Question text -->
         <p id="question" class="question-text"></p>
-
+        
         <!-- Container for images and buttons -->
         <div class="images-buttons-container">
-
-            <!-- Container for Player A's image and era -->
+            
+            <!-- Container for Player A's image and hits -->
             <div class="images-container">
-                <p class="loading-text hidden-visibility" id="loadingTextA">Taking The Mound...</p>
+                <p class="loading-text hidden-visibility" id="loadingTextA">Stepping Up To The Plate...</p>
                 <div class="loader" id="loaderA">
-                    <svg class="pitchers-mound" viewBox="0 -10 100 110">
-                        <circle cx="50" cy="50" r="45" style="fill: #F0D9B5;" class="loader-path loader-path-yellow"/>
-                        <rect x="35" y="40" width="30" height="10" style="fill: white;"/>
+                    <svg class="home-plate" viewBox="0 -10 100 110">
+                        <polygon points="50,0 90,25 90,75 10,75 10,25" fill="white"/>
+                        <polygon points="50,0 90,25 90,75 10,75 10,25" class="loader-path loader-path-yellow"/>
                     </svg>
                 </div>
                 <img id="playerAImage" src="" alt="Player A Image" class="hidden-visibility">
-                <p id="playerA_era"></p>
+                <p id="playerA_hits"></p>
             </div>
 
             <!-- Container for guess buttons -->
@@ -261,17 +262,17 @@
                 <button id="lowerButton" onclick="makeGuess('lower')"><i class="fas fa-arrow-down"></i> Lower</button>
             </div>
 
-            <!-- Container for Player B's image and era -->
+            <!-- Container for Player B's image and hits -->
             <div class="images-container">
-                <p class="loading-text hidden-visibility" id="loadingTextB">Taking The Mound...</p>
+                <p class="loading-text hidden-visibility" id="loadingTextB">Stepping Up To The Plate...</p>
                 <div class="loader" id="loaderB">
-                    <svg class="pitchers-mound" viewBox="0 -10 100 110">
-                        <circle cx="50" cy="50" r="45" style="fill: #F0D9B5;" class="loader-path loader-path-green"/>
-                        <rect x="35" y="40" width="30" height="10" style="fill: white;"/>
+                    <svg class="home-plate" viewBox="0 -10 100 110">
+                        <polygon points="50,0 90,25 90,75 10,75 10,25" fill="white"/>
+                        <polygon points="50,0 90,25 90,75 10,75 10,25" class="loader-path loader-path-green"/>
                     </svg>
                 </div>
                 <img id="playerBImage" src="" alt="Player B Image" class="hidden-visibility">
-                <p id="playerB_era"></p>
+                <p id="playerB_hits"></p>
             </div>
         </div>
 
@@ -287,7 +288,7 @@
     <script>
         // Declare variables to store player data and images
         let playerA, playerB;
-        let playerAImageURL, playerBImageURL, playerAEra;
+        let playerAImageURL, playerBImageURL, playerAHits;
         let firstQuestion = true;
         
         // Function to start a new game
@@ -302,8 +303,8 @@
             document.getElementById('lowerButton').disabled = true;
             
             // Reset content and visibility of UI elements
-            document.getElementById('playerA_era').textContent = '';
-            document.getElementById('playerB_era').textContent = '';
+            document.getElementById('playerA_hits').textContent = '';
+            document.getElementById('playerB_hits').textContent = '';
             document.getElementById('result').textContent = '';
             document.getElementById('question').textContent = '';
 
@@ -314,7 +315,7 @@
             const loaderB = document.getElementById('loaderB');
             const loadingTextA = document.getElementById('loadingTextA');
             const loadingTextB = document.getElementById('loadingTextB');
-
+            
             // Reset content and visibility of UI elements
             playerAImage.src = '';
             playerBImage.src = '';
@@ -325,11 +326,13 @@
             loadingTextA.classList.remove('hidden-visibility');
             loadingTextB.classList.remove('hidden-visibility');
         
+
             // Fetch data for the initial question
             const questionPromise = fetch('start_game')
                 .then(response => response.json());
         
-            // Fetch player images based on the initial question data 
+
+            // Fetch player images based on the initial question data    
             const imagesPromise = questionPromise.then(data => {
                 playerA = data.playerA;
                 playerB = data.playerB;
@@ -344,15 +347,15 @@
                     })
                 }).then(response => response.json());
             });
-        
+            
             // Handle the responses and update UI
             Promise.all([questionPromise, imagesPromise]).then(([questionData, imagesData]) => {
                 playerA = questionData.playerA;
                 playerB = questionData.playerB;
                 playerAImageURL = imagesData.playerA_img;
                 playerBImageURL = imagesData.playerB_img;
-                playerAEra = questionData.eraA;
-                document.getElementById('question').innerHTML = `Does <span class="yellow-text">${playerA}</span> have a HIGHER or LOWER career ERA than <span class="green-text">${playerB}</span>?`;
+                playerAHits = questionData.hitsA;
+                document.getElementById('question').innerHTML = `Does <span class="yellow-text">${playerA}</span> have HIGHER or LOWER career hits than <span class="green-text">${playerB}</span>?`;
                 playerAImage.src = playerAImageURL;
                 playerBImage.src = playerBImageURL;
                 playerAImage.onload = () => {
@@ -371,9 +374,9 @@
                 document.getElementById('lowerButton').disabled = false;
 
                 // Show the game after data is loaded
-                document.getElementById('game').classList.remove('hidden');
+                document.getElementById('game').classList.remove('hidden');  
             });
-        
+            
             //Indicate that it's the first question of the game
             firstQuestion = true;
         }
@@ -398,7 +401,7 @@
             // Show previous playerA's image as new playerB
             playerBImage.src = playerAImageURL;  
             playerBImage.classList.remove('hidden-visibility');
-            document.getElementById('playerB_era').textContent = 'ERA: ' + playerAEra;
+            document.getElementById('playerB_hits').textContent = playerAHits + ' Hits';
             
             // Clear other elements
             document.getElementById('question').textContent = '';
@@ -406,7 +409,7 @@
             playerAImage.classList.add('hidden-visibility');
             loaderA.style.display = 'block';
             loadingTextA.classList.remove('hidden-visibility');
-            document.getElementById('playerA_era').textContent = '';
+            document.getElementById('playerA_hits').textContent = '';
         
             // Fetch data for the next question
             const questionPromise = fetch('next_question', {
@@ -443,8 +446,8 @@
                 playerA = questionData.newPlayerA;
                 playerB = questionData.newPlayerB;
                 playerAImageURL = imagesData.playerA_img;
-                playerAEra = questionData.new_eraA;
-                document.getElementById('question').innerHTML = `Does <span class="yellow-text">${playerA}</span> have a HIGHER or LOWER career ERA than <span class="green-text">${playerB}</span>?`;
+                playerAHits = questionData.new_hitsA;
+                document.getElementById('question').innerHTML = `Does <span class="yellow-text">${playerA}</span> have HIGHER or LOWER career hits than <span class="green-text">${playerB}</span>?`;
                 playerAImage.src = playerAImageURL;
                 playerAImage.onload = () => {
                     loaderA.style.display = 'none';
@@ -453,13 +456,13 @@
                 };
                 document.getElementById('higherButton').disabled = false;
                 document.getElementById('lowerButton').disabled = false;
-                document.getElementById('playerB_era').textContent = 'ERA: ' + playerBEra;
+                document.getElementById('playerB_hits').textContent = playerBHits + ' Hits';
                 document.getElementById('result').textContent = `Current streak: ${questionData.streak}`;
                 document.getElementById('nextQuestionButton').style.display = 'none';
                 document.getElementById('endGameButton').style.display = 'none';
 
             });
-        
+            
             // Indicate that this is not the first question
             firstQuestion = false;
         }
@@ -496,6 +499,7 @@
 
             // Function to display the result of the user's guess
             const displayResult = async () => {
+
                 // If the guess was correct, show the current streak and enable the next question and end game buttons
                 if (data.correct) {
                     document.getElementById('result').textContent = `Correct! Current streak: ${data.streak}`;
@@ -514,56 +518,52 @@
                 }
             };
         
-            // Animate the display of era
+            // Animate the display of hits
             if (firstQuestion) {
 
-                // For the first question, animate both player era
+                // For the first question, animate both player hits
                 await Promise.all([
-                    animateDisplay('playerA_era', data.eraA),
-                    animateDisplay('playerB_era', data.eraB)
+                    animateDisplay('playerA_hits', data.hitsA),
+                    animateDisplay('playerB_hits', data.hitsB)
                 ]);
             } else {
 
-                // For subsequent questions, only animate playerA's era
-                await animateDisplay('playerA_era', data.eraA);
+                // For subsequent questions, only animate playerA's hits
+                await animateDisplay('playerA_hits', data.hitsA);
             }
         
             displayResult();
         }
         
-        // Function to animate the display of era values
-        function animateDisplay(elementId, targetEra) {
+        // Function to animate the display of hits values
+        function animateDisplay(elementId, targetHits) {
             return new Promise((resolve) => {
 
-                // Initialize the current era
-                let currentEra = 0.00;
+                // Initialize the current hits
+                let currentHits = 0;
 
-                // Precision for displaying eras
-                const precision = 2;
                 const interval = setInterval(() => {
 
-                    // Increment the era value
-                    currentEra += 0.02;
+                    // Increment the hits value
+                    currentHits += 3;
 
-                    // Format to specified precision
-                    currentEra = parseFloat(currentEra.toFixed(precision));
-                    if (currentEra > targetEra) {
-
-                        // Cap the era at the target value
-                        currentEra = targetEra;
+                    if (currentHits > targetHits) {
+                        
+                        // Cap the hits at the target value
+                        currentHits = targetHits;
 
                         // Stop the animation
                         clearInterval(interval);
 
-                         //Resolve the promise
+                        //Resolve the promise
                         resolve();
                     }
 
-                    // Update the displayed era
-                    document.getElementById(elementId).innerText = 'ERA: ' + currentEra.toFixed(2);
-
+                    // Update the displayed hits
+                    document.getElementById(elementId).innerText = currentHits + ' Hits';
+                
                     // Update every 20 milliseconds
-                }, 20);
+                }, 25);
             });
         }
         
@@ -583,7 +583,7 @@
             document.getElementById('nextQuestionButton').style.display = 'none';
             document.getElementById('endGameButton').style.display = 'none';
             document.getElementById('tryAgainButton').style.display = 'block';
-            
+
             // Display the final streak
             document.getElementById('result').textContent = `Game Ended. Final streak: ${data.final_streak}`;
         }

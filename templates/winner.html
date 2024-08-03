@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Title of the web page -->
-    <title>ERA Higher/Lower Game</title>
+    <title>Wins Higher/Lower Game</title>
 
     <!-- Link to Font Awesome for icon usage -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -107,8 +107,8 @@
             order: 2;
         }
 
-        /* Styling for player A's era text */
-        #playerA_era{
+        /* Styling for player A's wins text */
+        #playerA_wins{
             font-family: 'Arial Black', Gadget, sans-serif;
             font-size: 24px;
             color: yellow;
@@ -116,8 +116,8 @@
             text-shadow: 1px 1px 0 black, -1px -1px 0 black, -1px 1px 0 black, 1px -1px 0 black;
         }
 
-        /* Styling for player B's era text */
-        #playerB_era{
+        /* Styling for player B's wins text */
+        #playerB_wins{
             font-family: 'Arial Black', Gadget, sans-serif;
             font-size: 24px;
             color: lightgreen;
@@ -234,7 +234,7 @@
     <div id="game" class="hidden">
 
         <!-- Title of the game -->
-        <h1 class="title-text">Career Earned Run Average (ERA) Higher/Lower Game</h1>
+        <h1 class="title-text">Career Wins Higher/Lower Game</h1>
         
         <!-- Question text -->
         <p id="question" class="question-text"></p>
@@ -242,7 +242,7 @@
         <!-- Container for images and buttons -->
         <div class="images-buttons-container">
 
-            <!-- Container for Player A's image and era -->
+            <!-- Container for Player A's image and wins -->
             <div class="images-container">
                 <p class="loading-text hidden-visibility" id="loadingTextA">Taking The Mound...</p>
                 <div class="loader" id="loaderA">
@@ -252,7 +252,7 @@
                     </svg>
                 </div>
                 <img id="playerAImage" src="" alt="Player A Image" class="hidden-visibility">
-                <p id="playerA_era"></p>
+                <p id="playerA_wins"></p>
             </div>
 
             <!-- Container for guess buttons -->
@@ -261,7 +261,7 @@
                 <button id="lowerButton" onclick="makeGuess('lower')"><i class="fas fa-arrow-down"></i> Lower</button>
             </div>
 
-            <!-- Container for Player B's image and era -->
+            <!-- Container for Player B's image and wins -->
             <div class="images-container">
                 <p class="loading-text hidden-visibility" id="loadingTextB">Taking The Mound...</p>
                 <div class="loader" id="loaderB">
@@ -271,7 +271,7 @@
                     </svg>
                 </div>
                 <img id="playerBImage" src="" alt="Player B Image" class="hidden-visibility">
-                <p id="playerB_era"></p>
+                <p id="playerB_wins"></p>
             </div>
         </div>
 
@@ -287,7 +287,7 @@
     <script>
         // Declare variables to store player data and images
         let playerA, playerB;
-        let playerAImageURL, playerBImageURL, playerAEra;
+        let playerAImageURL, playerBImageURL, playerAWins;
         let firstQuestion = true;
         
         // Function to start a new game
@@ -302,8 +302,8 @@
             document.getElementById('lowerButton').disabled = true;
             
             // Reset content and visibility of UI elements
-            document.getElementById('playerA_era').textContent = '';
-            document.getElementById('playerB_era').textContent = '';
+            document.getElementById('playerA_wins').textContent = '';
+            document.getElementById('playerB_wins').textContent = '';
             document.getElementById('result').textContent = '';
             document.getElementById('question').textContent = '';
 
@@ -351,8 +351,8 @@
                 playerB = questionData.playerB;
                 playerAImageURL = imagesData.playerA_img;
                 playerBImageURL = imagesData.playerB_img;
-                playerAEra = questionData.eraA;
-                document.getElementById('question').innerHTML = `Does <span class="yellow-text">${playerA}</span> have a HIGHER or LOWER career ERA than <span class="green-text">${playerB}</span>?`;
+                playerAWins = questionData.winsA;
+                document.getElementById('question').innerHTML = `Does <span class="yellow-text">${playerA}</span> have HIGHER or LOWER career wins than <span class="green-text">${playerB}</span>?`;
                 playerAImage.src = playerAImageURL;
                 playerBImage.src = playerBImageURL;
                 playerAImage.onload = () => {
@@ -398,7 +398,7 @@
             // Show previous playerA's image as new playerB
             playerBImage.src = playerAImageURL;  
             playerBImage.classList.remove('hidden-visibility');
-            document.getElementById('playerB_era').textContent = 'ERA: ' + playerAEra;
+            document.getElementById('playerB_wins').textContent = playerAWins + ' Wins';
             
             // Clear other elements
             document.getElementById('question').textContent = '';
@@ -406,7 +406,7 @@
             playerAImage.classList.add('hidden-visibility');
             loaderA.style.display = 'block';
             loadingTextA.classList.remove('hidden-visibility');
-            document.getElementById('playerA_era').textContent = '';
+            document.getElementById('playerA_wins').textContent = '';
         
             // Fetch data for the next question
             const questionPromise = fetch('next_question', {
@@ -443,8 +443,8 @@
                 playerA = questionData.newPlayerA;
                 playerB = questionData.newPlayerB;
                 playerAImageURL = imagesData.playerA_img;
-                playerAEra = questionData.new_eraA;
-                document.getElementById('question').innerHTML = `Does <span class="yellow-text">${playerA}</span> have a HIGHER or LOWER career ERA than <span class="green-text">${playerB}</span>?`;
+                playerAWins = questionData.new_winsA;
+                document.getElementById('question').innerHTML = `Does <span class="yellow-text">${playerA}</span> have HIGHER or LOWER career wins than <span class="green-text">${playerB}</span>?`;
                 playerAImage.src = playerAImageURL;
                 playerAImage.onload = () => {
                     loaderA.style.display = 'none';
@@ -453,7 +453,7 @@
                 };
                 document.getElementById('higherButton').disabled = false;
                 document.getElementById('lowerButton').disabled = false;
-                document.getElementById('playerB_era').textContent = 'ERA: ' + playerBEra;
+                document.getElementById('playerB_wins').textContent = playerBWins + ' Wins';
                 document.getElementById('result').textContent = `Current streak: ${questionData.streak}`;
                 document.getElementById('nextQuestionButton').style.display = 'none';
                 document.getElementById('endGameButton').style.display = 'none';
@@ -514,43 +514,39 @@
                 }
             };
         
-            // Animate the display of era
+            // Animate the display of wins
             if (firstQuestion) {
 
-                // For the first question, animate both player era
+                // For the first question, animate both player wins
                 await Promise.all([
-                    animateDisplay('playerA_era', data.eraA),
-                    animateDisplay('playerB_era', data.eraB)
+                    animateDisplay('playerA_wins', data.winsA),
+                    animateDisplay('playerB_wins', data.winsB)
                 ]);
             } else {
 
-                // For subsequent questions, only animate playerA's era
-                await animateDisplay('playerA_era', data.eraA);
+                // For subsequent questions, only animate playerA's wins
+                await animateDisplay('playerA_wins', data.winsA);
             }
         
             displayResult();
         }
         
-        // Function to animate the display of era values
-        function animateDisplay(elementId, targetEra) {
+        // Function to animate the display of win values
+        function animateDisplay(elementId, targetWins) {
             return new Promise((resolve) => {
 
-                // Initialize the current era
-                let currentEra = 0.00;
+                // Initialize the current wins
+                let currentWins = 0;
 
-                // Precision for displaying eras
-                const precision = 2;
                 const interval = setInterval(() => {
 
-                    // Increment the era value
-                    currentEra += 0.02;
+                    // Increment the wins value
+                    currentWins += 1;
 
-                    // Format to specified precision
-                    currentEra = parseFloat(currentEra.toFixed(precision));
-                    if (currentEra > targetEra) {
+                    if (currentWins > targetWins) {
 
-                        // Cap the era at the target value
-                        currentEra = targetEra;
+                        // Cap the wins at the target value
+                        currentWins = targetWins;
 
                         // Stop the animation
                         clearInterval(interval);
@@ -559,8 +555,8 @@
                         resolve();
                     }
 
-                    // Update the displayed era
-                    document.getElementById(elementId).innerText = 'ERA: ' + currentEra.toFixed(2);
+                    // Update the displayed wins
+                    document.getElementById(elementId).innerText = currentWins + ' Wins';
 
                     // Update every 20 milliseconds
                 }, 20);

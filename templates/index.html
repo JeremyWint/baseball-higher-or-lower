@@ -34,19 +34,31 @@
             font-size: 40px;
             color: white;
             text-shadow: 2px 2px 2px black;
-            margin-bottom: 200px;
+            margin: 0 0 0 0;
         }
 
-        /* Container for the buttons, centered horizontally */
+        /* Styling for the sub-title text */
+        .sub-title-text {
+            font-family: 'Arial Black', Gadget, sans-serif;
+            font-size: 20px;
+            color: white;
+            text-shadow: 1px 1px 1px black;
+            margin-bottom: 0 0 0 0;
+        }
+
+        /* Container for the buttons, centered horizontally and in a grid formation*/
         .button-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 100px 150px;
+            justify-items: center;
+            margin-top: 100px;
         }
 
         /* Styling for the game launch buttons */
-        #batterButton, #pitcherButton{
+        #batterButton, #pitcherButton, #hitterButton, #homerButton, #strikeoutButton, #winnerButton{
             font-size: 20px;
+            font-weight: bold;
             padding: 15px 30px;
             cursor: pointer;
             border-radius: 25px;
@@ -56,13 +68,15 @@
             margin: 20px;
             display: inline-flex;
             align-items: center;
+            width: 275px;
+            justify-content: center;
         }
 
         /* Hidden image elements that will be shown on hover */
         .hover-image{
             position: absolute;
             display: none;
-            width: 400px;
+            width: 275px;
             height: auto;
             opacity: 1;
         }
@@ -83,24 +97,48 @@
                 opacity: 1;
             }
         }
+        
+        /* Styling for the title container */
+        .title-container {
+            width: 100%;
+            text-align: center;
+            padding-top: 0;
+        }
     </style>
 </head>
 <body>
-
-    <!-- Main title of the game launcher page -->
-    <h1 class="title-text">Welcome to Baseball Higher or Lower!</h1>
+    <div class="title-container">
+        <h1 class="title-text">Welcome to Baseball Higher or Lower!</h1>
+        <h2 class="sub-title-text">Select any of the stats below to start playing!</h2>
+    </div>
     <div class="button-container">
 
         <!-- Button to launch the batter game -->
-        <button id="batterButton" onclick="location.href='/batter'">Batting Average Higher or Lower</button>
+        <button id="batterButton" onclick="location.href='/batter'">Batting Average</button>
         
         <!-- Button to launch the pitcher game -->
-        <button id="pitcherButton" onclick="location.href='/pitcher'">Earned Run Average Higher or Lower</button>
+        <button id="pitcherButton" onclick="location.href='/pitcher'">Earned Run Average</button>
+
+        <!-- Button to launch the hitter game -->
+        <button id="hitterButton" onclick="location.href='/hitter'">Hits</button>
+
+        <!-- Button to launch the strikeout game -->
+        <button id="strikeoutButton" onclick="location.href='/strikeout'">Strikeouts</button>
+
+        <!-- Button to launch the homer game -->
+        <button id="homerButton" onclick="location.href='/homer'">Home Runs</button>
+
+        <!-- Button to launch the winner game -->
+        <button id="winnerButton" onclick="location.href='/winner'">Wins</button>
     </div>
 
     <!-- Images that will appear when hovering over the buttons -->
     <img src="/static/batters.png" id="batterImage" class="hover-image">
     <img src="/static/pitchers.png" id="pitcherImage" class="hover-image">
+    <img src="/static/hitters.png" id="hitterImage" class="hover-image">
+    <img src="/static/homers.png" id="homerImage" class="hover-image">
+    <img src="/static/strikeouts.png" id="strikeoutImage" class="hover-image">
+    <img src="/static/winners.png" id="winnerImage" class="hover-image">
     <script>
 
         // Get references to the button and image elements
@@ -108,14 +146,22 @@
         const batterImage = document.getElementById('batterImage');
         const pitcherButton = document.getElementById('pitcherButton');
         const pitcherImage = document.getElementById('pitcherImage');
+        const hitterButton = document.getElementById('hitterButton');
+        const hitterImage = document.getElementById('hitterImage');
+        const homerButton = document.getElementById('homerButton');
+        const homerImage = document.getElementById('homerImage');
+        const strikeoutButton = document.getElementById('strikeoutButton');
+        const strikeoutImage = document.getElementById('strikeoutImage');
+        const winnerButton = document.getElementById('winnerButton');
+        const winnerImage = document.getElementById('winnerImage');
 
         // Show batter image on mouse enter and position it near the button
         batterButton.addEventListener('mouseenter', () => {
             batterImage.style.display = 'block';
             const rect = batterButton.getBoundingClientRect();
             const imageWidth = batterImage.offsetWidth;
-            const offsetX = 15;
-            const offsetY = 7;
+            const offsetX = -3;
+            const offsetY = 0;
         
             batterImage.style.top = `${rect.top - batterImage.offsetHeight + offsetY}px`;
             batterImage.style.left = `${rect.left + (rect.width/2) - (imageWidth/2) + offsetX}px`;
@@ -140,8 +186,8 @@
             pitcherImage.style.display = 'block';
             const rect = pitcherButton.getBoundingClientRect();
             const imageWidth = pitcherImage.offsetWidth;
-            const offsetX = 15;
-            const offsetY = 7;
+            const offsetX = -20;
+            const offsetY = 0;
         
             pitcherImage.style.top = `${rect.top - pitcherImage.offsetHeight + offsetY}px`;
             pitcherImage.style.left = `${rect.left + (rect.width/2) - (imageWidth/2) + offsetX}px`;
@@ -160,6 +206,111 @@
             // Remove animation
             pitcherImage.classList.remove('animate-rollup');
         });
+
+        // Show hitter image on mouse enter and position it near the button
+        hitterButton.addEventListener('mouseenter', () => {
+            hitterImage.style.display = 'block';
+            const rect = hitterButton.getBoundingClientRect();
+            const imageWidth = hitterImage.offsetWidth;
+            const offsetX = -10;
+            const offsetY = 0;
+        
+            hitterImage.style.top = `${rect.top - hitterImage.offsetHeight + offsetY}px`;
+            hitterImage.style.left = `${rect.left + (rect.width/2) - (imageWidth/2) + offsetX}px`;
+            if (rect.top - hitterImage.height < 0){
+                hitterImage.style.top = `${rect.bottom}px`;
+            }
+
+            // Apply animation
+            hitterImage.classList.add('animate-rollup');
+        });
+
+        // Hide hitter image on mouse leave
+        hitterButton.addEventListener('mouseleave', () => {
+            hitterImage.style.display = 'none';
+
+            // Remove animation
+            hitterImage.classList.remove('animate-rollup');
+        });
+
+        // Show homer image on mouse enter and position it near the button
+        homerButton.addEventListener('mouseenter', () => {
+            homerImage.style.display = 'block';
+            const rect = homerButton.getBoundingClientRect();
+            const imageWidth = homerImage.offsetWidth;
+            const offsetX = -10;
+            const offsetY = 0;
+        
+            homerImage.style.top = `${rect.top - homerImage.offsetHeight + offsetY}px`;
+            homerImage.style.left = `${rect.left + (rect.width/2) - (imageWidth/2) + offsetX}px`;
+            if (rect.top - homerImage.height < 0){
+                homerImage.style.top = `${rect.bottom}px`;
+            }
+
+            // Apply animation
+            homerImage.classList.add('animate-rollup');
+        });
+
+        // Hide homer image on mouse leave
+        homerButton.addEventListener('mouseleave', () => {
+            homerImage.style.display = 'none';
+
+            // Remove animation
+            homerImage.classList.remove('animate-rollup');
+        });
+
+        // Show strikeout image on mouse enter and position it near the button
+        strikeoutButton.addEventListener('mouseenter', () => {
+            strikeoutImage.style.display = 'block';
+            const rect = strikeoutButton.getBoundingClientRect();
+            const imageWidth = strikeoutImage.offsetWidth;
+            const offsetX = -10;
+            const offsetY = 0;
+        
+            strikeoutImage.style.top = `${rect.top - strikeoutImage.offsetHeight + offsetY}px`;
+            strikeoutImage.style.left = `${rect.left + (rect.width/2) - (imageWidth/2) + offsetX}px`;
+            if (rect.top - strikeoutImage.height < 0){
+                strikeoutImage.style.top = `${rect.bottom}px`;
+            }
+
+            // Apply animation
+            strikeoutImage.classList.add('animate-rollup');
+        });
+
+        // Hide strikeout image on mouse leave
+        strikeoutButton.addEventListener('mouseleave', () => {
+            strikeoutImage.style.display = 'none';
+
+            // Remove animation
+            strikeoutImage.classList.remove('animate-rollup');
+        });
+
+        // Show winner image on mouse enter and position it near the button
+        winnerButton.addEventListener('mouseenter', () => {
+            winnerImage.style.display = 'block';
+            const rect = winnerButton.getBoundingClientRect();
+            const imageWidth = winnerImage.offsetWidth;
+            const offsetX = 0;
+            const offsetY = 0;
+        
+            winnerImage.style.top = `${rect.top - winnerImage.offsetHeight + offsetY}px`;
+            winnerImage.style.left = `${rect.left + (rect.width/2) - (imageWidth/2) + offsetX}px`;
+            if (rect.top - winnerImage.height < 0){
+                winnerImage.style.top = `${rect.bottom}px`;
+            }
+
+            // Apply animation
+            winnerImage.classList.add('animate-rollup');
+        });
+
+        // Hide winner image on mouse leave
+        winnerButton.addEventListener('mouseleave', () => {
+            winnerImage.style.display = 'none';
+
+            // Remove animation
+            winnerImage.classList.remove('animate-rollup');
+        });
+
     </script>
 </body>
 </html>
