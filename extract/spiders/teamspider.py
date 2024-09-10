@@ -13,26 +13,29 @@ class TeamSpider(scrapy.Spider):
 
         # List to store team links
         self.currTeamLinks = []
+        super().__init__(*args, **kwargs)
     def start_requests(self):
         yield SeleniumRequest(url='https://www.baseballreference.com', callback=self.toTeams)
     def toTeams(self, response):
-        driver = response.meta['driver']
-        xpath_selector = '/html/body/div[3]/div[1]/div[2]/ul[1]/li[2]/a/@href'
+        xpath_selector = '//*[@id="header_teams"]/a/@href'
         link = response.xpath(xpath_selector).get()
         if link:
             full_url = response.urljoin(link)
-            yield scrapy.Request(
+            yield SeleniumRequest(
                 url=full_url,
-                callback=self.toPlayers
+                callback=self.toPlayers,
+                wait_time=10
             )
     def toPlayers(self, response):
         for row in range(1, 64):
-            link = response.xpath(f'//table//tr[{row}]/td[1]/a/@href').get()
+            link = response.xpath(f'//*[@id="teams_active"]/tbody/tr[{row}]/td[1]/a/@href').get()      
+            print("toPlayers Link" + link)
             if link:
                 full_url = response.urljoin(link)
-                yield scrapy.Request(
+                yield SeleniumRequest(
                     url=full_url,
-                    callback=self.toCurrTeam
+                    callback=self.toCurrTeam,
+                    wait_time=10
                 )
     def toCurrTeam(self, response):
         restLink = response.xpath('//table/tbody/tr[1]/td[1]/a/@href').get()

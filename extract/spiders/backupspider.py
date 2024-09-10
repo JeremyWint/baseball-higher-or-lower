@@ -1,6 +1,7 @@
 import scrapy
 import csv
 import os
+import unicodedata
 from scrapy_selenium import SeleniumRequest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -20,6 +21,15 @@ class BackupSpider(scrapy.Spider):
 
         # List to store player information
         self.player_data = []
+
+    def normalize_name(self, name):
+        """
+        Remove accents from player names to ensure consistency in the data.
+        """
+        return ''.join(
+            c for c in unicodedata.normalize('NFD', name)
+            if unicodedata.category(c) != 'Mn'
+        )
 
     def start_requests(self):
         """
@@ -51,7 +61,7 @@ class BackupSpider(scrapy.Spider):
         for row in range(1, 64):
 
             # Extract the relative URL for each player
-            link = response.xpath(f'///*[@id="the40man"]/tbody/tr[{row}]/td[2]//a//@href').get()
+            link = response.xpath(f'//*[@id="the40man"]/tbody/tr[{row}]/td[2]/a/@href').get()
             
             # Create absolute URL
             full_url = response.urljoin(link)
@@ -68,12 +78,13 @@ class BackupSpider(scrapy.Spider):
 
         # Extract player name, image URL, and team from the page
         player_name = response.css('div#meta h1 span::text').get()
+        normalized_name = self.normalize_name(player_name)
         image_url = response.xpath('//*[@id="meta"]/div[1]/img[1]/@src').get()
         image_url = response.urljoin(image_url)
         team = response.xpath('//p[contains(., "Team:")]/a/text()').get()
         
         # Create a dictionary with the extracted data
-        player_stats = {'name': player_name, 'team': team, 'image_url': image_url}
+        player_stats = {'name': normalized_name, 'team': team, 'image_url': image_url}
         self.player_data.append(player_stats)
     
     def closed(self,reason):
